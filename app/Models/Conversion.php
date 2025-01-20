@@ -19,12 +19,12 @@ class Conversion extends Model
     protected $fillable = ['original', 'value', 'conversion_driver'];
 
     /**
-     * @return array{original: 'integer', value: 'string', conversion_driver: 'App\Enums\ConversionSupported' }
+     * @return array{original: 'float', value: 'string', conversion_driver: 'App\Enums\ConversionSupported' }
      */
     protected function casts(): array
     {
         return [
-            'original' => 'integer',
+            'original' => 'float',
             'value' => 'string',
             'conversion_driver' => ConversionSupported::class,
         ];

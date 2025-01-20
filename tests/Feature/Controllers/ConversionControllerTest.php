@@ -26,13 +26,20 @@ describe('Conversion Controller', function () {
 
     it('can store a new `Integer` to `Roman Numeral` conversion', function () {
         postJson(route('conversions.store'), [
-            'value' => 123,
+            'value' => 3999,
             'conversion' => ConversionSupported::RomanNumeral->value,
         ])
-            ->assertCreated();
+            ->assertCreated()
+            ->assertJson([
+                'data' => [
+                    'original' => 3999,
+                    'value' => 'MMMCMXCIX',
+                ],
+            ]);
 
         assertDatabaseHas('conversions', [
-            'original' => 123,
+            'original' => 3999,
+            'value' => 'MMMCMXCIX',
             'conversion_driver' => ConversionSupported::RomanNumeral->value,
         ]);
     });
@@ -42,10 +49,17 @@ describe('Conversion Controller', function () {
             'value' => 0.001,
             'conversion' => ConversionSupported::KgToGram->value,
         ])
-            ->assertCreated();
+            ->assertCreated()
+            ->assertJson([
+                'data' => [
+                    'original' => 0.001,
+                    'value' => '1',
+                ],
+            ]);
 
         assertDatabaseHas('conversions', [
             'original' => 0.001,
+            'value' => '1',
             'conversion_driver' => ConversionSupported::KgToGram->value,
         ]);
     });
@@ -55,10 +69,17 @@ describe('Conversion Controller', function () {
             'value' => 1000,
             'conversion' => ConversionSupported::GramToKg->value,
         ])
-            ->assertCreated();
+            ->assertCreated()
+            ->assertJson([
+                'data' => [
+                    'original' => 1000,
+                    'value' => '1',
+                ],
+            ]);
 
         assertDatabaseHas('conversions', [
             'original' => 1000,
+            'value' => '1',
             'conversion_driver' => ConversionSupported::GramToKg->value,
         ]);
     });
@@ -76,5 +97,23 @@ describe('Conversion Controller', function () {
                     'updated_at' => $conversion->updated_at->format('Y-m-d\TH:i:s.u\Z'),
                 ],
             ]);
+    });
+
+    it('throws a validation error when storing a new conversion with invalid data', function () {
+        postJson(route('conversions.store'), [
+            'value' => 0,
+            'conversion' => ConversionSupported::RomanNumeral->value,
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('value');
+    });
+
+    it('throws a validation error when using a non supported unit of conversion', function () {
+        postJson(route('conversions.store'), [
+            'value' => 100,
+            'conversion' => 'not-a-valid-conversion',
+        ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('conversion');
     });
 });

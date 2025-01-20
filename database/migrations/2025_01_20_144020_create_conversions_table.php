@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('conversions', function (Blueprint $table) {
             $table->id();
-            $table->integer('original');
+            $table->float('original', 4);
             $table->string('value');
             $table->string('conversion_driver')->default(ConversionSupported::RomanNumeral->value);
             $table->timestamps();
