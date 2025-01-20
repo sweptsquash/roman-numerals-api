@@ -1,66 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Roman Numerals API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repo is for a technical test and not for practical or use in a production environment.
 
-## About Laravel
+## Application Decisions
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+I decided to alter the originally provided `RomanNumeralConverter` service to encompass a driver manager pattern, this approach allows for future developers to extend and provide newer drivers of conversion using the provided interface `IntegerConverterInterface`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+By taking this approach it meant the database structure had to be flexable to also encompass this. I took the opportunity to provide two additional drivers as an example of what another unit of conversion might look like and how this could be integrated.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This is demonstrated in both the `Feature` and `Unit` tests through testing the converter directly and through driver implementation and again on a controller specific level ensuring results are correctly delivered with the use of `JsonResources`.
 
-## Learning Laravel
+## Running the application
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+To run the application with Laravel Sail please follow the following instructions:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. First run the following command via your designated terminal, this will install all required composer packages using PHP 8.4
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php84-composer:latest \
+    composer install --ignore-platform-reqs
+```
 
-## Laravel Sponsors
+2. Build the the pre-configured Ubuntu 24.04 image for our application by executing the following command:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+./vendor/bin/sail build --no-cache
+```
 
-### Premium Partners
+3. Start our newly built Ubuntu with the following command:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+./vendor/bin/sail up -d
+```
 
-## Contributing
+4. Migrate and seed our SQLite database by executing the following command:
+```bash
+./vendor/bin/sail artisan migrate:fresh --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Note to shut down the image simply enter: `./vendor/bin/sail down`
 
-## Code of Conduct
+Alternatively if you do not wish to use Docker/Laravel Sail and have PHP/Composer installed locally you may follow the following steps instead:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. `composer install -o`
+2. `php artisan migrate:fresh --seed`
+3. `php artisan serve`
 
-## Security Vulnerabilities
+The application will be served on `http://localhost:8000`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
+## Running Tests
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Depending on how you executed the application you may execute tests via one of two commands `php artisan test` or `./vendor/bin/sail artisan test`
+
+## Endpoints
+
+- `[GET] - /api/conversions` - List all conversions for a specific driver (all by default, pass the query parameter `conversion` and a supported conversion driver name, e.g. `/api/conversion?conversion=kg_to_gram`)
+- `[POST] - /api/conversions` - Post form data with the fields `value` and `conversion` to convert a value to the designated unit of conversion
+- `[GET] - /api/conversions/popular` - Get the top 10 popular converted units of conversion (all by default, pass the query parameter `conversion` and a supported conversion driver name, e.g. `/api/conversion/popular?conversion=kg_to_gram`)
+- `[GET] - /api/conversions/{conversion}` - Retrieve a previous conversion with a specified ID
+
