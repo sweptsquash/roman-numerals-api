@@ -24,7 +24,7 @@ class StoreConversionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => ['required', 'numeric', 'min:0', Rule::when($this->conversion === ConversionSupported::RomanNumeral, ['lte:3999'])],
+            'value' => ['required', 'numeric', 'gt:0', Rule::when($this->conversion === ConversionSupported::RomanNumeral, ['lte:3999'])],
             'conversion' => ['required', Rule::enum(ConversionSupported::class)],
         ];
     }

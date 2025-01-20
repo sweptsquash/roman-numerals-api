@@ -6,7 +6,7 @@ This repo is for a technical test and not for practical or use in a production e
 
 I decided to alter the originally provided `RomanNumeralConverter` service to encompass a driver manager pattern, this approach allows for future developers to extend and provide newer drivers of conversion using the provided interface `IntegerConverterInterface`.
 
-By taking this approach it meant the database structure had to be flexable to also encompass this. I took the opportunity to provide two additional drivers as an example of what another unit of conversion might look like and how this could be integrated.
+By taking this approach it meant the database structure had to be flexible to also encompass this. I took the opportunity to provide two additional drivers as an example of what another unit of conversion might look like and how this could be integrated.
 
 This is demonstrated in both the `Feature` and `Unit` tests through testing the converter directly and through driver implementation and again on a controller specific level ensuring results are correctly delivered with the use of `JsonResources`.
 
